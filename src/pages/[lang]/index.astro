@@ -1,0 +1,111 @@
+---
+import Base from '../../layouts/Base.astro';
+import Inquiry from '../../components/Inquiry.astro';
+import property from '../../data/property.json';
+import { LANGS, T, type Lang } from '../../data/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = T[lang];
+const name = property.name[lang];
+const town = property.town[lang];
+---
+<Base lang={lang}>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-text">
+        <h1>{name} <span>{t.heroIn} {town}</span></h1>
+        <p>{t.lead}</p>
+        <div class="hero-cta">
+          <a class="btn primary" href="#inquiry">{t.cta}</a>
+          <a class="btn ghost" href={property.googleMapsUrl} target="_blank" rel="noopener">{t.map}</a>
+        </div>
+      </div>
+      <div class="photo hero-photo" role="img" aria-label={name}><span>{property.demo ? 'photo' : ''}</span></div>
+    </div>
+  </section>
+
+  <section class="wrap direct">
+    <h2>{t.directTitle}</h2>
+    <ul>
+      {t.direct.map(([h, p]) => <li><h3>{h}</h3><p>{p}</p></li>)}
+    </ul>
+  </section>
+
+  <section id="rooms" class="wrap">
+    <h2>{t.roomsTitle}</h2>
+    <div class="rooms">
+      {property.rooms.map((r) => (
+        <article class="room">
+          <div class="photo" role="img" aria-label={r.name[lang]}><span>{property.demo ? 'photo' : ''}</span></div>
+          <div class="room-body">
+            <h3>{r.name[lang]}</h3>
+            <p class="meta">{r.beds[lang]} | {r.guests} {t.guests} | {r.size} {t.sqm}</p>
+            <p class="feat">{r.features.map((f) => t.features[f]).join(', ')}</p>
+            <p class="price">{t.from} <strong>{r.priceFrom} {property.currency}</strong> {t.night}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+    <div class="amen">
+      <h3>{t.amenitiesTitle}</h3>
+      <p>{property.amenities.map((a) => t.amenities[a]).join(' | ')}</p>
+      <p class="times">{t.checkin}: {property.checkin} | {t.checkout}: {property.checkout}</p>
+    </div>
+  </section>
+
+  <section id="around" class="wrap">
+    <h2>{t.aroundTitle}</h2>
+    <ul class="around">
+      {property.nearby.map((n) => <li><span class="km">{n.km < 1 ? n.km.toString().replace('.', lang === 'en' ? '.' : ',') : n.km} {t.km}</span>{n.name[lang]}</li>)}
+    </ul>
+  </section>
+
+  <section id="faq" class="wrap">
+    <h2>{t.faqTitle}</h2>
+    <div class="faq">
+      {t.faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+    </div>
+    {property.bookingUrl && <p><a href={property.bookingUrl} target="_blank" rel="noopener">{t.booking}</a></p>}
+  </section>
+
+  <Inquiry lang={lang} />
+</Base>
+
+<style>
+  .hero { background: linear-gradient(180deg, var(--water-tint), var(--bg)); padding-block: 40px 8px; }
+  .hero-in { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; }
+  .hero h1 { font-size: clamp(30px, 5vw, 46px); color: var(--pine); }
+  .hero h1 span { display: block; font-size: .55em; color: var(--ink-2); font-weight: 400; margin-top: 6px; }
+  .hero p { font-size: 18px; color: var(--ink-2); max-width: 46ch; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .photo { background: linear-gradient(135deg, #cfe3dd, #9cc3b8 55%, #6f9d8f); border-radius: 16px; display: grid; place-items: center; color: rgba(255,255,255,.8); font: 600 13px var(--f-body); letter-spacing: .08em; text-transform: uppercase; }
+  .hero-photo { aspect-ratio: 4 / 3; max-width: 100%; }
+  .direct ul { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .direct li { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .direct h3 { font-size: 18px; color: var(--pine); }
+  .direct p { margin: 6px 0 0; color: var(--ink-2); }
+  .rooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  .room { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+  .room .photo { border-radius: 0; aspect-ratio: 16 / 10; max-width: 100%; }
+  .room-body { padding: 14px 16px 16px; display: grid; gap: 6px; align-content: start; }
+  .room-body p { margin: 0; }
+  .meta, .feat { color: var(--ink-2); font-size: 14px; }
+  .price strong { color: var(--pine); font-size: 18px; }
+  .amen { margin-top: 18px; color: var(--ink-2); }
+  .amen h3 { font-size: 17px; color: var(--ink); }
+  .amen p { margin: 6px 0 0; }
+  .around { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
+  .around li { display: grid; grid-template-columns: 70px 1fr; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .km { font-variant-numeric: tabular-nums; color: var(--water); font-weight: 600; }
+  .faq { display: grid; gap: 8px; margin-top: 16px; }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { margin: 8px 0 0; color: var(--ink-2); }
+  @media (max-width: 860px) {
+    .hero-in, .direct ul, .rooms { grid-template-columns: 1fr; }
+  }
+</style>

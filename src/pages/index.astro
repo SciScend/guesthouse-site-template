@@ -1,0 +1,24 @@
+---
+// Language chooser: sends guests to their language, falls back to links.
+import property from '../data/property.json';
+import { LANGS, LANG_NAME } from '../data/i18n';
+---
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{property.name.bg} | {property.name.en}</title>
+    {LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(`/${l}/`, property.site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL('/bg/', property.site).href} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      var l = (navigator.language || 'bg').slice(0, 2).toLowerCase();
+      location.replace('/' + ({ bg: 'bg', el: 'el', ro: 'ro' }[l] || 'en') + '/');
+    </script>
+    <style>body{font:18px/1.6 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f6f7f4;color:#1d2b28}a{margin:0 10px;color:#1f8f83}</style>
+  </head>
+  <body>
+    <p>{LANGS.map((l) => <a href={`/${l}/`} hreflang={l} lang={l}>{LANG_NAME[l]}</a>)}</p>
+  </body>
+</html>

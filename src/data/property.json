@@ -1,0 +1,84 @@
+{
+  "site": "https://example.com",
+  "demo": true,
+  "name": {
+    "bg": "Къща за гости Пример",
+    "en": "Primer Guest House",
+    "el": "Ξενώνας Primer",
+    "ro": "Pensiunea Primer"
+  },
+  "town": { "bg": "Сандански", "en": "Sandanski", "el": "Σαντάνσκι", "ro": "Sandanski" },
+  "address": {
+    "streetAddress": "ул. Примерна 1",
+    "addressLocality": "Sandanski",
+    "postalCode": "2800",
+    "addressCountry": "BG"
+  },
+  "geo": { "lat": 41.5669, "lng": 23.2799 },
+  "phone": "+359 88 000 0000",
+  "whatsapp": "359880000000",
+  "viber": "+359880000000",
+  "email": "info@example.com",
+  "checkin": "14:00",
+  "checkout": "11:00",
+  "currency": "EUR",
+  "bookingUrl": "",
+  "googleMapsUrl": "https://maps.google.com/?q=41.5669,23.2799",
+  "rooms": [
+    {
+      "id": "double",
+      "guests": 2,
+      "size": 22,
+      "priceFrom": 60,
+      "name": { "bg": "Двойна стая", "en": "Double room", "el": "Δίκλινο δωμάτιο", "ro": "Cameră dublă" },
+      "beds": { "bg": "Едно голямо легло", "en": "One double bed", "el": "Ένα διπλό κρεβάτι", "ro": "Un pat dublu" },
+      "features": ["balcony", "ac", "wifi", "tv"]
+    },
+    {
+      "id": "family",
+      "guests": 4,
+      "size": 34,
+      "priceFrom": 90,
+      "name": { "bg": "Семейна стая", "en": "Family room", "el": "Οικογενειακό δωμάτιο", "ro": "Cameră de familie" },
+      "beds": { "bg": "Голямо легло и разтегателен диван", "en": "Double bed and a sofa bed", "el": "Διπλό κρεβάτι και καναπές-κρεβάτι", "ro": "Pat dublu și canapea extensibilă" },
+      "features": ["balcony", "ac", "wifi", "kitchenette"]
+    },
+    {
+      "id": "studio",
+      "guests": 3,
+      "size": 30,
+      "priceFrom": 80,
+      "name": { "bg": "Студио с изглед към Пирин", "en": "Studio with a view of Pirin", "el": "Στούντιο με θέα στο Πίριν", "ro": "Garsonieră cu vedere spre Pirin" },
+      "beds": { "bg": "Голямо легло и единично легло", "en": "Double bed and a single bed", "el": "Διπλό και μονό κρεβάτι", "ro": "Pat dublu și pat single" },
+      "features": ["view", "ac", "wifi", "kitchenette"]
+    }
+  ],
+  "amenities": ["parking", "wifi", "breakfast", "garden", "bbq", "ac"],
+  "nearby": [
+    {
+      "id": "park",
+      "km": 0.5,
+      "name": { "bg": "Парк Свети Врач и минералните басейни", "en": "St. Vrach Park and the mineral pools", "el": "Πάρκο Άγιος Βρατς και ιαματικές πισίνες", "ro": "Parcul Sf. Vraci și piscinele minerale" }
+    },
+    {
+      "id": "melnik",
+      "km": 20,
+      "name": { "bg": "Мелник: най-малкият град и винарните", "en": "Melnik: the smallest town and its wineries", "el": "Μέλνικ: η μικρότερη πόλη και τα οινοποιεία", "ro": "Melnik: cel mai mic oraș și cramele" }
+    },
+    {
+      "id": "rozhen",
+      "km": 26,
+      "name": { "bg": "Роженски манастир", "en": "Rozhen Monastery", "el": "Μονή Ρόζεν", "ro": "Mănăstirea Rozhen" }
+    },
+    {
+      "id": "popina",
+      "km": 17,
+      "name": { "bg": "Попина лъка и Пирин", "en": "Popina Laka and the Pirin mountains", "el": "Πόπινα Λάκα και τα βουνά Πίριν", "ro": "Popina Laka și munții Pirin" }
+    },
+    {
+      "id": "border",
+      "km": 20,
+      "name": { "bg": "ГКПП Кулата (граница с Гърция)", "en": "Kulata border crossing (Greece)", "el": "Συνοριακή διάβαση Κουλάτα/Προμαχώνας", "ro": "Punctul de frontieră Kulata (Grecia)" }
+    }
+  ]
+}

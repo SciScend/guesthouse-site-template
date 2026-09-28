@@ -1,0 +1,86 @@
+---
+// Direct inquiry without a server: the form composes a message and hands it to
+// WhatsApp, Viber, e-mail or the phone. Nothing is stored on the site.
+import property from '../data/property.json';
+import { T, type Lang } from '../data/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang];
+const strings = { intro: t.msgIntro, arrival: t.arrival, departure: t.departure, guests: t.guestsField, room: t.room, name: t.yourName, hint: t.viberHint, subject: t.inquiryTitle };
+---
+<section id="inquiry" class="wrap inquiry">
+  <div class="inq-head">
+    <h2>{t.inquiryTitle}</h2>
+    <p>{t.inquiryLead}</p>
+  </div>
+  <form class="inq" data-strings={JSON.stringify(strings)} data-wa={property.whatsapp} data-viber={property.viber} data-email={property.email} data-hotel={property.name[lang]}>
+    <label>{t.arrival}<input type="date" name="arrival" id="inq-arrival" required /></label>
+    <label>{t.departure}<input type="date" name="departure" id="inq-departure" required /></label>
+    <label>{t.guestsField}<input type="number" name="guests" id="inq-guests" min="1" max="8" value="2" /></label>
+    <label>{t.room}
+      <select name="room" id="inq-room">
+        <option value="">{t.anyRoom}</option>
+        {property.rooms.map((r) => <option value={r.name[lang]}>{r.name[lang]}</option>)}
+      </select>
+    </label>
+    <label class="wide">{t.yourName}<input type="text" name="name" id="inq-name" autocomplete="name" /></label>
+    <label class="wide">{t.message}<textarea name="message" id="inq-message" rows="3"></textarea></label>
+    <div class="send wide">
+      <button class="btn primary" type="button" data-via="whatsapp">{t.sendWhatsApp}</button>
+      <button class="btn ghost" type="button" data-via="viber">{t.sendViber}</button>
+      <button class="btn ghost" type="button" data-via="email">{t.sendEmail}</button>
+      <a class="btn ghost" href={`tel:${property.phone.replace(/\s/g, '')}`}>{t.call}: {property.phone}</a>
+    </div>
+    <p class="hint wide" role="status" hidden></p>
+  </form>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('form.inq').forEach((form) => {
+    const s = JSON.parse(form.dataset.strings || '{}');
+    const val = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value.trim() || '';
+    const text = () => {
+      const lines = [
+        `${s.intro} ${form.dataset.hotel}`,
+        `${s.arrival}: ${val('arrival')}`,
+        `${s.departure}: ${val('departure')}`,
+        `${s.guests}: ${val('guests')}`,
+      ];
+      if (val('room')) lines.push(`${s.room}: ${val('room')}`);
+      if (val('name')) lines.push(`${s.name}: ${val('name')}`);
+      if (val('message')) lines.push('', val('message'));
+      return lines.join('\n');
+    };
+    const hint = form.querySelector<HTMLElement>('.hint')!;
+    form.querySelectorAll<HTMLButtonElement>('[data-via]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        if (!form.reportValidity()) return;
+        const msg = text();
+        if (b.dataset.via === 'whatsapp') {
+          window.open(`https://wa.me/${form.dataset.wa}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+        } else if (b.dataset.via === 'email') {
+          location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(s.subject)}&body=${encodeURIComponent(msg)}`;
+        } else {
+          // Viber cannot pre-fill a message to a number, so the text goes to the clipboard.
+          try { await navigator.clipboard.writeText(msg); } catch { /* the hint still helps */ }
+          hint.textContent = s.hint;
+          hint.hidden = false;
+          location.href = `viber://chat?number=${encodeURIComponent(form.dataset.viber || '')}`;
+        }
+      }),
+    );
+  });
+</script>
+
+<style>
+  .inquiry { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding-block: 28px; display: grid; gap: 18px; }
+  .inq-head p { color: var(--ink-2); margin: 6px 0 0; }
+  .inq { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .inq label { display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); }
+  .inq input, .inq select, .inq textarea { font: inherit; color: var(--ink); padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); width: 100%; }
+  .inq .wide { grid-column: 1 / -1; }
+  .send { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hint { margin: 0; color: var(--water); font-weight: 600; }
+  @media (max-width: 700px) { .inq { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

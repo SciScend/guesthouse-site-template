@@ -1,0 +1,106 @@
+---
+import property from '../data/property.json';
+import { LANGS, LANG_LABEL, LANG_NAME, LOCALE, T, type Lang } from '../data/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang];
+const name = property.name[lang];
+const url = (l: Lang) => new URL(`/${l}/`, property.site).href;
+
+// schema.org: lets Google show the place, its prices and languages correctly.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  name,
+  url: url(lang),
+  telephone: property.phone,
+  email: property.email,
+  address: { '@type': 'PostalAddress', ...property.address },
+  geo: { '@type': 'GeoCoordinates', latitude: property.geo.lat, longitude: property.geo.lng },
+  checkinTime: property.checkin,
+  checkoutTime: property.checkout,
+  availableLanguage: LANGS.map((l) => LANG_NAME[l]),
+  priceRange: `${Math.min(...property.rooms.map((r) => r.priceFrom))}-${Math.max(...property.rooms.map((r) => r.priceFrom))} ${property.currency}`,
+  amenityFeature: property.amenities.map((a) => ({ '@type': 'LocationFeatureSpecification', name: t.amenities[a], value: true })),
+};
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{`${name} | ${t.title}`}</title>
+    <meta name="description" content={t.description} />
+    <link rel="canonical" href={url(lang)} />
+    {LANGS.map((l) => <link rel="alternate" hreflang={l} href={url(l)} />)}
+    <link rel="alternate" hreflang="x-default" href={url('bg')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={name} />
+    <meta property="og:description" content={t.description} />
+    <meta property="og:locale" content={LOCALE[lang]} />
+    <meta property="og:url" content={url(lang)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    {property.demo && <div class="demo">{t.demo}</div>}
+    <header class="top">
+      <a class="brand" href={`/${lang}/`}>{name}</a>
+      <nav class="nav" aria-label="Menu">
+        <a href="#rooms">{t.nav.rooms}</a>
+        <a href="#around">{t.nav.around}</a>
+        <a href="#faq">{t.nav.faq}</a>
+        <a class="nav-cta" href="#inquiry">{t.nav.contact}</a>
+      </nav>
+      <nav class="langs" aria-label="Language">
+        {LANGS.map((l) => (
+          <a href={`/${l}/`} hreflang={l} lang={l} aria-current={l === lang ? 'page' : undefined} title={LANG_NAME[l]}>{LANG_LABEL[l]}</a>
+        ))}
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer class="foot">
+      <div>
+        <strong>{name}</strong><br />
+        {property.address.streetAddress}, {property.address.postalCode} {property.town[lang]}<br />
+        <a href={`tel:${property.phone.replace(/\s/g, '')}`}>{property.phone}</a> | <a href={`mailto:${property.email}`}>{property.email}</a>
+      </div>
+      <div class="made">{t.madeBy} <a href="https://sciscend.com/">SciScend</a></div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #f6f7f4; --surface: #ffffff; --ink: #1d2b28; --ink-2: #4f5f5b; --line: #dfe4df;
+    --pine: #1f4d3a; --water: #1f8f83; --water-tint: #e2f3f0; --sun: #c98a1e;
+    --f-body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+    --f-head: Georgia, "Noto Serif", "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); }
+  a { color: var(--water); }
+  h1, h2, h3 { font-family: var(--f-head); font-weight: 600; line-height: 1.2; margin: 0; text-wrap: balance; }
+  main { display: grid; gap: 56px; padding-bottom: 56px; }
+  .wrap { width: min(1080px, 100%); margin: 0 auto; padding-inline: 16px; }
+  .demo { background: var(--sun); color: #fff; text-align: center; font-size: 14px; padding: 6px 16px; }
+  .top { position: sticky; top: 0; z-index: 5; background: rgba(246, 247, 244, .94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 10px 16px; }
+  .brand { font-family: var(--f-head); font-size: 20px; color: var(--pine); text-decoration: none; font-weight: 600; margin-right: auto; }
+  .nav { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .nav a { color: var(--ink-2); text-decoration: none; font-size: 15px; }
+  .nav a:hover { color: var(--ink); }
+  .nav .nav-cta { color: var(--water); font-weight: 600; }
+  .langs { display: flex; gap: 2px; }
+  .langs a { font-size: 13px; font-weight: 600; text-decoration: none; color: var(--ink-2); padding: 3px 7px; border-radius: 6px; }
+  .langs a[aria-current="page"] { background: var(--pine); color: #fff; }
+  .foot { border-top: 1px solid var(--line); padding: 24px 16px 32px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; color: var(--ink-2); font-size: 14px; }
+  .foot .made { align-self: end; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 20px; font: 600 15px var(--f-body); cursor: pointer; text-decoration: none; }
+  .btn.primary { background: var(--pine); color: #fff; }
+  .btn.ghost { background: var(--surface); color: var(--pine); border: 1px solid var(--line); }
+  :focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
